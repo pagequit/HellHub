@@ -1,7 +1,16 @@
 import type { Session } from "@supabase/supabase-js";
+import { LogIn } from "lucide-react";
 import React from "react";
 import { Header } from "./components/header";
 import { ThemeProvider } from "./components/theme-provider";
+import {
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "./components/ui/alert-dialog";
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
 import { useSession } from "./lib/useSession";
@@ -11,16 +20,28 @@ const supabase = useSupabase();
 
 export const SessionContext = React.createContext<Session | null>(null);
 
-function Content({ session }: { session: Session | null }) {
-	if (session) {
-		return <div>Logged in as {session.user.user_metadata.full_name}</div>;
-	}
+export function SignInAlert({ session }: { session: Session | null }) {
 	return (
-		<Button
-			onClick={() => supabase.auth.signInWithOAuth({ provider: "discord" })}
-		>
-			auth
-		</Button>
+		<AlertDialog open={session === null}>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>Sign in to continue</AlertDialogTitle>
+					<AlertDialogDescription>
+						You need to authenticate with Discord to continue.
+					</AlertDialogDescription>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<Button
+						onClick={() =>
+							supabase.auth.signInWithOAuth({ provider: "discord" })
+						}
+					>
+						<span className="font-semibold">Sign in</span>
+						<LogIn className="h-[1.2rem] w-[1.2rem] ml-2" />
+					</Button>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
 	);
 }
 
@@ -29,18 +50,23 @@ function App() {
 
 	return (
 		<SessionContext.Provider value={session}>
-			<ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-				<Header />
+			<ThemeProvider defaultTheme="system" storageKey="ui-theme">
+				<Header session={session} />
 				<div className="container">
 					<Card>
 						<CardHeader>
 							<CardTitle>HellHub</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<Content session={session} />
+							{session === null ? (
+								<div>Loading...</div>
+							) : (
+								<div>Logged in as {session.user.user_metadata.full_name}</div>
+							)}
 						</CardContent>
 					</Card>
 				</div>
+				<SignInAlert session={session} />
 			</ThemeProvider>
 		</SessionContext.Provider>
 	);
