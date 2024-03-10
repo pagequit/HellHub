@@ -38,7 +38,7 @@ function User({ session }: { session: Session | null }) {
 
 export function Header({ session }: { session: Session | null }) {
 	return (
-		<div className="container flex py-2 max-w-screen-2xl items-center border-b mb-4">
+		<div className="flex py-2 px-6 items-center border-b mb-4">
 			<div className="mr-4">
 				<a className="font-bold" href="/">
 					HellHub
